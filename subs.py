@@ -13,19 +13,28 @@ def send_message(text):
         json={
             "chat_id": CHANNEL_ID,
             "text": text
-        }
+        },
+        timeout=10
     )
 
 print("SOFASCORE BOT STARTED", flush=True)
+
+send_message("🚀 SOFASCORE BOT STARTED")
 
 while True:
     try:
         live = requests.get(
             "https://api.sofascore.com/api/v1/sport/football/events/live",
-            headers={"User-Agent": "Mozilla/5.0"}
+            headers={
+                "User-Agent": "Mozilla/5.0"
+            },
+            timeout=15
         ).json()
 
-        print(f"LIVE MATCHES: {len(live.get('events', []))}", flush=True)
+        print(
+            f"LIVE MATCHES: {len(live.get('events', []))}",
+            flush=True
+        )
 
         for match in live.get("events", []):
 
@@ -33,7 +42,10 @@ while True:
 
             incidents = requests.get(
                 f"https://api.sofascore.com/api/v1/event/{event_id}/incidents",
-                headers={"User-Agent": "Mozilla/5.0"}
+                headers={
+                    "User-Agent": "Mozilla/5.0"
+                },
+                timeout=15
             ).json()
 
             for incident in incidents.get("incidents", []):
@@ -69,5 +81,5 @@ while True:
         time.sleep(15)
 
     except Exception as e:
-        print("ERROR:", e, flush=True)
+        print(f"ERROR: {e}", flush=True)
         time.sleep(30)
