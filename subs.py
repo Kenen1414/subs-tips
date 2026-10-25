@@ -1,11 +1,9 @@
-import requests
+from playwright.sync_api import sync_playwright
 import os
-import time
+import requests
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHANNEL_ID = os.getenv("CHANNEL_ID")
-
-sent_events = set()
 
 def send_message(text):
     requests.post(
@@ -13,85 +11,39 @@ def send_message(text):
         json={
             "chat_id": CHANNEL_ID,
             "text": text
-        },
-        timeout=10
+        }
     )
 
-print("SOFASCORE BOT STARTED", flush=True)
+print("PLAYWRIGHT START", flush=True)
 
-send_message("🚀 SOFASCORE BOT STARTED")
+try:
+    with sync_playwright() as p:
 
-while True:
-    try:
-        r = requests.get(
-            "https://api.sofascore.com/api/v1/sport/football/events/live",
-            headers={
-                "User-Agent": "Mozilla/5.0"
-            },
-            timeout=15
+        browser = p.chromium.launch(
+            headless=True
         )
 
-        print(f"STATUS: {r.status_code}", flush=True)
-        print(r.text[:500], flush=True)
+        page = browser.new_page()
 
-        live = r.json()
+        page.goto(
+            "https://www.sofascore.com/football",
+            wait_until="domcontentloaded",
+            timeout=60000
+        )
 
-        events = live.get("events", [])
+        title = page.title()
 
-        print(f"LIVE MATCHES: {len(events)}", flush=True)
+        print(title, flush=True)
 
-        for match in events:
+        send_message(
+            f"✅ Playwright funguje\n\nTitle: {title}"
+        )
 
-            event_id = match["id"]
+        browser.close()
 
-            try:
-                incidents = requests.get(
-                    f"https://api.sofascore.com/api/v1/event/{event_id}/incidents",
-                    headers={
-                        "User-Agent": "Mozilla/5.0"
-                    },
-                    timeout=15
-                ).json()
+except Exception as e:
+    print(e, flush=True)
 
-            except Exception as e:
-                print(f"INCIDENT ERROR: {e}", flush=True)
-                continue
-
-            for incident in incidents.get("incidents", []):
-
-                if incident.get("incidentType") != "substitution":
-                    continue
-
-                minute = incident.get("time", 0)
-
-                if minute > 45:
-                    continue
-
-                key = f"{event_id}_{minute}"
-
-                if key in sent_events:
-                    continue
-
-                home = match["homeTeam"]["name"]
-                away = match["awayTeam"]["name"]
-
-                message = (
-                    f"🔄 STRIEDANIE V 1. POLČASE\n\n"
-                    f"⚽ {home} vs {away}\n"
-                    f"⏱️ {minute}'"
-                )
-
-                send_message(message)
-
-                print(
-                    f"SIGNAL SENT: {home} vs {away} {minute}'",
-                    flush=True
-                )
-
-                sent_events.add(key)
-
-        time.sleep(15)
-
-    except Exception as e:
-        print(f"ERROR: {e}", flush=True)
-        time.sleep(30)
+    send_message(
+        f"❌ Playwright chyba\n\n{e}"
+    )
