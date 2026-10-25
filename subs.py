@@ -2,13 +2,13 @@ import requests
 import os
 import time
 
-BOT_TOKEN = os.getenv("8553880830:AAHsv3uIYFrI_LcvMJ27ZCDwM5A9719NPMA")
-CHANNEL_ID = os.getenv("-1003500029930")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHANNEL_ID = os.getenv("CHANNEL_ID")
 
 requests.post(
-    f"https://api.telegram.org/bot{8553880830:AAHsv3uIYFrI_LcvMJ27ZCDwM5A9719NPMA}/sendMessage",
+    f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
     json={
-        "chat_id": -1003500029930,
+        "chat_id": CHANNEL_ID,
         "text": "✅ Railway bot je online"
     }
 )
