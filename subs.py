@@ -1,3 +1,4 @@
+raise Exception("VERSION999")
 import requests
 import os
 import time
