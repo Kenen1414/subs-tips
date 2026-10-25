@@ -23,17 +23,24 @@ send_message("🚀 SOFASCORE BOT STARTED")
 
 while True:
     try:
-        live = requests.get(
+        r = requests.get(
             "https://api.sofascore.com/api/v1/sport/football/events/live",
             headers={
                 "User-Agent": "Mozilla/5.0"
             },
             timeout=15
-        ).json()
+        )
 
-        print(f"LIVE MATCHES: {len(live.get('events', []))}", flush=True)
+        print(f"STATUS: {r.status_code}", flush=True)
+        print(r.text[:500], flush=True)
 
-        for match in live.get("events", []):
+        live = r.json()
+
+        events = live.get("events", [])
+
+        print(f"LIVE MATCHES: {len(events)}", flush=True)
+
+        for match in events:
 
             event_id = match["id"]
 
@@ -46,7 +53,8 @@ while True:
                     timeout=15
                 ).json()
 
-            except Exception:
+            except Exception as e:
+                print(f"INCIDENT ERROR: {e}", flush=True)
                 continue
 
             for incident in incidents.get("incidents", []):
@@ -67,15 +75,18 @@ while True:
                 home = match["homeTeam"]["name"]
                 away = match["awayTeam"]["name"]
 
-                text = (
+                message = (
                     f"🔄 STRIEDANIE V 1. POLČASE\n\n"
                     f"⚽ {home} vs {away}\n"
                     f"⏱️ {minute}'"
                 )
 
-                send_message(text)
+                send_message(message)
 
-                print(text, flush=True)
+                print(
+                    f"SIGNAL SENT: {home} vs {away} {minute}'",
+                    flush=True
+                )
 
                 sent_events.add(key)
 
