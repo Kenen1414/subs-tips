@@ -8,7 +8,7 @@ CHANNEL_ID = os.getenv("CHANNEL_ID")
 sent_events = set()
 
 def send_message(text):
-    requests.post(
+    r = requests.post(
         f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
         json={
             "chat_id": CHANNEL_ID,
@@ -17,9 +17,12 @@ def send_message(text):
         timeout=10
     )
 
-print("SOFASCORE BOT STARTED", flush=True)
+    print(f"TELEGRAM STATUS: {r.status_code}", flush=True)
+    print(r.text, flush=True)
 
-send_message("🚀 SOFASCORE BOT STARTED")
+print("VERSION 3 STARTED", flush=True)
+
+send_message("🔥 VERSION 3 STARTED")
 
 while True:
     try:
@@ -29,14 +32,18 @@ while True:
                 "User-Agent": "Mozilla/5.0"
             },
             timeout=15
-        ).json()
+        )
+
+        print(f"SOFASCORE STATUS: {live.status_code}", flush=True)
+
+        data = live.json()
 
         print(
-            f"LIVE MATCHES: {len(live.get('events', []))}",
+            f"LIVE MATCHES: {len(data.get('events', []))}",
             flush=True
         )
 
-        for match in live.get("events", []):
+        for match in data.get("events", []):
 
             event_id = match["id"]
 
@@ -74,7 +81,7 @@ while True:
 
                 send_message(text)
 
-                print(text, flush=True)
+                print(f"SIGNAL SENT: {home} vs {away}", flush=True)
 
                 sent_events.add(key)
 
