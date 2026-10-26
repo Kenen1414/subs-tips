@@ -1,16 +1,25 @@
 import requests
 
+match_id = 5802972
+
 r = requests.get(
-    "https://www.fotmob.com/api/data/matches?date=20261026&timezone=Europe%2FBratislava&ccode3=SVK&includeNextDayLateNight=true",
+    f"https://www.fotmob.com/api/data/matchDetails?matchId={match_id}",
     headers={
         "User-Agent": "Mozilla/5.0"
     },
     timeout=15
 )
 
-print("STATUS:", r.status_code, flush=True)
-
 data = r.json()
 
-print(type(data), flush=True)
-print(str(data)[:3000], flush=True)
+events = (
+    data.get("content", {})
+    .get("matchFacts", {})
+    .get("events", {})
+    .get("events", [])
+)
+
+print("EVENT COUNT:", len(events), flush=True)
+
+for event in events:
+    print(event, flush=True)
