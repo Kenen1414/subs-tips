@@ -1,14 +1,23 @@
 import requests
 
-url = "https://www.fotmob.com/api/data?date=20261026"
+urls = [
+    "https://www.fotmob.com/api",
+    "https://www.fotmob.com/api/data",
+    "https://www.fotmob.com/api/matches",
+    "https://www.fotmob.com/api/leagues"
+]
 
-r = requests.get(
-    url,
-    headers={
-        "User-Agent": "Mozilla/5.0"
-    },
-    timeout=15
-)
+for url in urls:
+    try:
+        r = requests.get(
+            url,
+            headers={"User-Agent": "Mozilla/5.0"},
+            timeout=15
+        )
 
-print("STATUS:", r.status_code, flush=True)
-print(r.text[:1000], flush=True)
+        print("=" * 50)
+        print(url)
+        print("STATUS:", r.status_code)
+
+    except Exception as e:
+        print(url, e)
